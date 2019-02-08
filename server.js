@@ -47,10 +47,42 @@ app.post('/api/exercise/new-user', (req,res,next)=>{
   const description = req.body.description;
   const duration = req.body.duration;
   const requiredFieldsCompleted = userId && description && duration;
-
+  if(requiredFieldsCompleted){
+  User.findById(userId, (error,user)=>{
+   if (error) return next(error);
+    if(user){
+    const date = (req.body.date) ? new Date(req.body.date) : new Date();
+    user.count = user.count + 1
+       const newExercise = {description: description, duration: duration, date: date};
+        user.log.push(newExercise);
+      user.save((error,user)=>{
+       if(error) return next(error);
+        const showData = {
+          username: user.username,
+          _id: user._id,
+          description: description,
+          duration: duration,
+          date: date.toDateString()
+        }
+        res.json(showData)
+      })
+    }else{
+      next()
+    }
+  })
+  }else {
+  let message = "Please complete all the required fields.";
+    res.send(message);
+  }
 })
 
+app.get('/api/exercise/log',(req,res,next)=>{
 
+  const userId = req.query.userId;
+  if(userId){
+  let from 
+  }
+})
 
 
 // Not found middleware
