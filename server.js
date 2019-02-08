@@ -42,7 +42,7 @@ const username = req.body.username;
   }
 })
 
-app.post('/api/exercise/new-user', (req,res,next)=>{
+app.post('/api/exercise/add', (req,res,next)=>{
   const userId = req.body.userId;
   const description = req.body.description;
   const duration = req.body.duration;
@@ -80,7 +80,42 @@ app.get('/api/exercise/log',(req,res,next)=>{
 
   const userId = req.query.userId;
   if(userId){
-  let from 
+  let from = req.query.from
+  let to = req.query.to
+  let limit = req.query.limit
+  
+  
+  const limitOptions = {}
+  if(limit) limitOptions.limit = limit
+    
+    User.findById(userId).populate({path: 'log', match: {}, select : '-_id', options: limitOptions})
+    .exec((error,user)=>{
+        console.error('Testing invalid userId. After looking for the user, before if(error) and if(user).')
+        console.error('error: ' + error);
+        console.error('user: ' + user);
+      
+     if(error) return next(error); 
+       if (user){
+          const dataToShow = {id: user._id, username: user.username, count: user.count};
+          if (from) dataToShow.from = from.toDateString();
+          if (to) dataToShow.to = to.toDateString();
+          dataToShow.log = user.log.filter((ej) => {
+            if (from && to) {
+              return ej.date >= from && ej.date <= to;
+            } else if (from) {
+              return ej.date >= from;
+           } else if (to) {
+             return ej.date <= to;
+           } else {
+             return true;
+           }
+          });
+          res.json(dataToShow);
+        } else {
+          next();
+        }
+    })  
+  
   }
 })
 
