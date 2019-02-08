@@ -18,6 +18,10 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+// Import the model/schema
+const User = require(__dirname + '/user.js');
+
+
 
 // Not found middleware
 app.use((req, res, next) => {
