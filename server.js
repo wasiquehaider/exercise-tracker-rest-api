@@ -19,7 +19,37 @@ app.get('/', (req, res) => {
 });
 
 // Import the model/schema
-const User = require(__dirname + '/user.js');
+const User = require(__dirname + '/User.js');
+
+// add User
+app.post('/api/exercise/new-user', (req,res,next)=>{
+const username = req.body.username;
+  if(username){
+  const newUser = {username: username, count: 0, log: []};
+    User.findOne({username : newUser.username},(error,data)=>{
+    if (error) return next(error);
+      if(data){
+      res.send('username already taken')
+      }else {
+      User.create(newUser, (err,user)=>{
+      if (error) return next(error);
+      res.json({username: user.username, id: user._id})
+      })
+      }
+    })
+  }else {
+    res.send("You need to provide a username.");
+  }
+})
+
+app.post('/api/exercise/new-user', (req,res,next)=>{
+  const userId = req.body.userId;
+  const description = req.body.description;
+  const duration = req.body.duration;
+  const requiredFieldsCompleted = userId && description && duration;
+
+})
+
 
 
 
